@@ -10,17 +10,22 @@
 </head>
 
 <body>
-	<div>
+
+	<head>
+	</head>
+	<main>
 		<div>
-			<input type="number" id="nodeValue" min="0" max="999" />
-			<button onclick="addNode()">Add Node</button>
+			<div>
+				<input type="number" id="nodeValue" min="0" max="999" placeholder="Enter node value" />
+				<button onclick="bTree.addNode()">Add Node</button>
+			</div>
+			<div>
+				<button onclick="bTree.clearTree()">Clear</button>
+			</div>
 		</div>
-		<div>
-			<button onclick="clearTree()">Clear</button>
-		</div>
-	</div>
-	<canvas id="canvas" width="1000" height="500" style="border: 1px solid black;">
-	</canvas>
+		<canvas id="canvas" width="1000" height="500" style="border: 1px solid black;">
+		</canvas>
+	</main>
 
 	<script src="./index.js">
 	</script>
