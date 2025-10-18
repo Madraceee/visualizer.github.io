@@ -127,14 +127,13 @@ class BTree {
 
 	printTree() {
 		this.printBtreeOnCanvas(this.root)
-		console.log(canvas.toDataURL())
 	}
 
 	printBtreeOnCanvas(node) {
 		ctx.clearRect(0, 0, canvas.width, canvas.height)
-		// if (node.keys.length === 0) {
-		// 	return node
-		// }
+		if (node.keys.length === 0) {
+			return node
+		}
 		let queue = new Array()
 		queue.push({ keyPos: null, prevStart: null, node: node })
 
