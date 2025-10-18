@@ -12,15 +12,23 @@ class Node {
 	}
 }
 
+var root = new Node()
 function init() {
 	degree = 4;
-	var input = [5, 3, 21, 9, 13, 22, 7, 10, 11, 14, 8, 16, 99]
-	root = new Node()
-	input.forEach((val) => {
-		root = insertVal(root, val)
-	})
 	printBtreeOnCanvas(root)
-	// printBTree(root)
+}
+
+function addNode() {
+	let value = document.getElementById("nodeValue").value
+	value = parseInt(value)
+
+	root = insertVal(root, value)
+	printBtreeOnCanvas(root)
+}
+
+function clearTree() {
+	root = new Node()
+	printBtreeOnCanvas(root)
 }
 
 function printBTree(root) {
@@ -121,6 +129,7 @@ function splitTree(root) {
 }
 
 function printBtreeOnCanvas(root) {
+	ctx.clearRect(0, 0, canvas.width, canvas.height)
 	let queue = new Array()
 	queue.push({ keyPos: null, prevStart: null, node: root })
 
@@ -166,5 +175,6 @@ function printBtreeOnCanvas(root) {
 		level += 1
 	}
 }
+
 
 init();
