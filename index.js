@@ -115,6 +115,12 @@ class BTree {
 			alert("Enter values between 0 and 999")
 			return
 		}
+
+		if (Number.isNaN(value)) {
+			alert("Enter valid number")
+			document.getElementById("nodeValue").value = ""
+			return
+		}
 		this.root = this.root.insertVal(value)
 		this.printTree()
 		document.getElementById("nodeValue").value = ""
@@ -131,13 +137,17 @@ class BTree {
 
 	printBtreeOnCanvas(node) {
 		ctx.clearRect(0, 0, canvas.width, canvas.height)
+		ctx.fillText("Degree: " + degree.toString(), 5, 10);
 		if (node.keys.length === 0) {
 			return node
 		}
+		// Print degree on canvas
+
 		let queue = new Array()
 		queue.push({ keyPos: null, prevStart: null, node: node })
 
 		let level = 0
+		const rectLength = 33 * (degree - 1)
 		while (queue.length > 0) {
 			let q = structuredClone(queue)
 			queue.length = 0
@@ -145,7 +155,7 @@ class BTree {
 			let totalSpace = q.length * (100 + 50)
 			let starting = 500 - totalSpace / 2
 			for (let i = 0; i < q.length; i++) {
-				ctx.strokeRect(starting + (150 * i), 50 + (level * 100), 100, 50)
+				ctx.strokeRect(starting + (150 * i), 50 + (level * 100), rectLength, 50)
 				//print Keys
 				q[i].node.keys.forEach((key, j) => {
 					ctx.fillText(key.toString(), starting + (150 * i) + (33 * j) + 5, 50 + (level * 100) + 25)
@@ -178,6 +188,25 @@ class BTree {
 
 			level += 1
 		}
+	}
+
+	changeDegree() {
+		let value = document.getElementById("degreeValue").value
+		value = parseInt(value)
+
+		if (value < 1 || value > 10) {
+			alert("Enter values between 0 and 10")
+			return
+		}
+
+		if (Number.isNaN(value)) {
+			alert("Enter valid number")
+			return
+		}
+
+		degree = value
+		this.clearTree()
+		alert("Changed degree of tree")
 	}
 
 }

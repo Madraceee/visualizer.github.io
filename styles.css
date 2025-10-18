@@ -44,8 +44,6 @@ main {
 	gap: 10px;
 }
 
-main canvas {}
-
 input {
 	width: 85px;
 	height: 20px;
@@ -54,7 +52,7 @@ input {
 
 button {
 	height: 30px;
-	width: 75px;
+	width: min(75px, fit-content);
 	background-color: #1a1a1a;
 	border-radius: 5px;
 	color: white;
