@@ -1,0 +1,97 @@
+html,
+body {
+	height: 100vh;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	font-family: "monospace";
+	background: #111111;
+	color: white;
+}
+
+body {
+	margin: auto;
+	width: 75%;
+}
+
+header {
+	padding: 5px 10px;
+}
+
+header>h1 {
+	margin: 0;
+}
+
+header ul {
+	display: flex;
+	flex-direction: col;
+	margin: 0;
+	padding: 0;
+	margin-top: 10px;
+}
+
+header li {
+	list-style: none;
+}
+
+main {
+	margin-top: 50px;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+	justify-content: center;
+	gap: 10px;
+}
+
+main canvas {}
+
+input {
+	width: 85px;
+	height: 20px;
+	border: none;
+}
+
+button {
+	height: 30px;
+	width: 75px;
+	background-color: #1a1a1a;
+	border-radius: 5px;
+	color: white;
+	transition: transform 100ms linear;
+}
+
+button:hover {
+	transform: scale(1.1);
+}
+
+.btn-ctn {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+.input-ctn {
+	padding: 5px;
+	background: white;
+	border-radius: 5px;
+}
+
+canvas {
+	width: 100%;
+	margin: 0;
+	background: black;
+	aspect-ratio: 2;
+}
+
+@media (min-width: 760px) and (max-width: 1300px) {
+	body {
+		width: 80%;
+	}
+}
+
+@media (max-width: 760px) {
+	body {
+		width: 100%;
+	}
+}

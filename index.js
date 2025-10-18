@@ -2,6 +2,8 @@ const canvas = document.getElementById("canvas")
 const ctx = canvas.getContext("2d");
 ctx.font = "16px serif"
 ctx.textBaseline = "middle"
+ctx.fillStyle = "white"
+ctx.strokeStyle = "white"
 var degree = 0
 
 class Node {
@@ -125,10 +127,14 @@ class BTree {
 
 	printTree() {
 		this.printBtreeOnCanvas(this.root)
+		console.log(canvas.toDataURL())
 	}
 
 	printBtreeOnCanvas(node) {
 		ctx.clearRect(0, 0, canvas.width, canvas.height)
+		// if (node.keys.length === 0) {
+		// 	return node
+		// }
 		let queue = new Array()
 		queue.push({ keyPos: null, prevStart: null, node: node })
 

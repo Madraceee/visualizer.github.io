@@ -5,25 +5,30 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>B-Tree</title>
-	<!-- <link rel="stylesheet" href="css/style.css"> -->
+	<link rel="stylesheet" href="styles.css">
 	<meta name="description" content="B Tree visualization">
 </head>
 
 <body>
-
-	<head>
-	</head>
-	<main>
+	<header>
+		<h1>Visualizer</h1>
 		<div>
-			<div>
-				<input type="number" id="nodeValue" min="0" max="999" placeholder="Enter node value" />
-				<button onclick="bTree.addNode()">Add Node</button>
+			<ul>
+				<li>Btree</li>
+		</div>
+	</header>
+	<hr />
+	<main>
+		<div class="btn-ctn">
+			<div class="input-ctn">
+				<input type="number" id="nodeValue" min="0" max="999" placeholder="Enter value" />
+				<button onclick="bTree.addNode()">Add</button>
 			</div>
 			<div>
 				<button onclick="bTree.clearTree()">Clear</button>
 			</div>
 		</div>
-		<canvas id="canvas" width="1000" height="500" style="border: 1px solid black;">
+		<canvas id="canvas" width="1000" height="500">
 		</canvas>
 	</main>
 
