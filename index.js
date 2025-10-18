@@ -152,20 +152,20 @@ class BTree {
 			let q = structuredClone(queue)
 			queue.length = 0
 
-			let totalSpace = q.length * (100 + 50)
+			let totalSpace = q.length * (rectLength + 50)
 			let starting = 500 - totalSpace / 2
 			for (let i = 0; i < q.length; i++) {
-				ctx.strokeRect(starting + (150 * i), 50 + (level * 100), rectLength, 50)
+				ctx.strokeRect(starting + ((rectLength + 50) * i), 50 + (level * 100), rectLength, 50)
 				//print Keys
 				q[i].node.keys.forEach((key, j) => {
-					ctx.fillText(key.toString(), starting + (150 * i) + (33 * j) + 5, 50 + (level * 100) + 25)
+					ctx.fillText(key.toString(), starting + ((rectLength + 50) * i) + (33 * j) + 5, 50 + (level * 100) + 25)
 					// Draw Box
 					if (j === degree - 2) {
 						return
 					}
 					ctx.beginPath()
-					ctx.moveTo(starting + (150 * i) + (33 * (j + 1)), 50 + (level * 100))
-					ctx.lineTo(starting + (150 * i) + (33 * (j + 1)), 100 + (level * 100))
+					ctx.moveTo(starting + ((rectLength + 50) * i) + (33 * (j + 1)), 50 + (level * 100))
+					ctx.lineTo(starting + ((rectLength + 50) * i) + (33 * (j + 1)), 100 + (level * 100))
 					ctx.stroke()
 					ctx.closePath()
 				})
@@ -175,7 +175,7 @@ class BTree {
 					let connectingStart = q[i].prevStart
 					ctx.beginPath()
 					ctx.moveTo(connectingStart + (33 * q[i].keyPos), 50 + 50 + ((level - 1) * 100))
-					ctx.lineTo(starting + 50 + (150 * i), 50 + level * 100)
+					ctx.lineTo(starting + 50 + ((rectLength + 50) * i), 50 + level * 100)
 					ctx.stroke()
 					ctx.closePath()
 				}
