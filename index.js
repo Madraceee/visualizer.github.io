@@ -1,3 +1,7 @@
+const canvas = document.getElementById("canvas")
+const ctx = canvas.getContext("2d");
+ctx.font = "16px serif"
+ctx.textBaseline = "middle"
 var degree = 0
 
 class Node {
@@ -15,7 +19,8 @@ function init() {
 	input.forEach((val) => {
 		root = insertVal(root, val)
 	})
-	printBTree(root)
+	printBtreeOnCanvas(root)
+	// printBTree(root)
 }
 
 function printBTree(root) {
@@ -115,6 +120,51 @@ function splitTree(root) {
 	}
 }
 
+function printBtreeOnCanvas(root) {
+	let queue = new Array()
+	queue.push({ keyPos: null, prevStart: null, node: root })
 
+	let level = 0
+	while (queue.length > 0) {
+		let q = structuredClone(queue)
+		queue.length = 0
+
+		let totalSpace = q.length * (100 + 50)
+		let starting = 500 - totalSpace / 2
+		for (let i = 0; i < q.length; i++) {
+			ctx.strokeRect(starting + (150 * i), 50 + (level * 100), 100, 50)
+			//print Keys
+			q[i].node.keys.forEach((key, j) => {
+				ctx.fillText(key.toString(), starting + (150 * i) + (33 * j) + 5, 50 + (level * 100) + 25)
+				// Draw Box
+				if (j === degree - 2) {
+					return
+				}
+				ctx.beginPath()
+				ctx.moveTo(starting + (150 * i) + (33 * (j + 1)), 50 + (level * 100))
+				ctx.lineTo(starting + (150 * i) + (33 * (j + 1)), 100 + (level * 100))
+				ctx.stroke()
+				ctx.closePath()
+			})
+
+			// Draw line to parent
+			if (q[i].keyPos !== null) {
+				let connectingStart = q[i].prevStart
+				ctx.beginPath()
+				ctx.moveTo(connectingStart + (33 * q[i].keyPos), 50 + 50 + ((level - 1) * 100))
+				ctx.lineTo(starting + 50 + (150 * i), 50 + level * 100)
+				ctx.stroke()
+				ctx.closePath()
+			}
+
+
+			q[i].node.values.forEach((val, j) => {
+				queue.push({ keyPos: j, prevStart: starting + (150 * i), node: val })
+			})
+		}
+
+		level += 1
+	}
+}
 
 init();
