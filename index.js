@@ -55,8 +55,6 @@ class Node {
 			this.keys.splice(insertPos, 0, val)
 		}
 
-
-
 		// this split
 		if (this.keys.length > degree - 1) {
 			let { mid, leftNode, rightNode } = this.splitTree()
@@ -194,8 +192,8 @@ class BTree {
 		let value = document.getElementById("degreeValue").value
 		value = parseInt(value)
 
-		if (value < 1 || value > 10) {
-			alert("Enter values between 0 and 10")
+		if (value < 2 || value > 10) {
+			alert("Enter values between 2 and 10")
 			return
 		}
 
