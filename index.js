@@ -252,7 +252,7 @@ class BTree {
 			queue.length = 0
 
 			let totalSpace = q.length * (rectLength + 50)
-			let starting = 750 - totalSpace / 2
+			let starting = 500 - totalSpace / 2
 			for (let i = 0; i < q.length; i++) {
 				ctx.strokeRect(starting + ((rectLength + 50) * i), 50 + (level * 100), rectLength, 50)
 				//print Keys
