@@ -56,6 +56,89 @@ class Node {
 		}
 	}
 
+	deleteVal(val) {
+		// Search Node
+		let { pos, isInKeys } = this.searchNode(val)
+		const minKeys = Math.ceil(degree / 2) - 1
+
+		if (isInKeys === false && this.isLeaf === false) {
+			this.values[pos].deleteVal(val)
+
+			// balancing tree
+			let leftSubTree = this.values[Math.max(0, pos - 1)]
+			let rightSubTree = this.values[Math.min(pos + 1, this.values.length - 1)]
+			let middleSubTree = this.values[pos]
+			let leftDegree = leftSubTree.keys.length
+			let rightDegree = rightSubTree.keys.length
+			let middleDegree = middleSubTree.keys.length
+
+			if (middleDegree < minKeys) {
+				if (leftDegree <= minKeys && rightDegree <= minKeys) {
+					// Pull a parent and combine with its value
+					if (pos !=  0 ) {
+						let key = this.keys.splice(pos-1,1)
+						middleSubTree.keys.splice(0,0,...leftSubTree.keys, key[0])
+						middleSubTree.values.splice(0,0,...leftSubTree.values)
+						this.values.splice(pos-1,1)
+					} else {
+						console.log("Left subtree addition", leftSubTree, rightSubTree)
+						let key = this.keys.splice(0,1)
+						leftSubTree.keys.splice(leftSubTree.keys.length,0,key[0], ...rightSubTree.keys)
+						leftSubTree.values.splice(leftSubTree.values.length,0,...rightSubTree.values)
+						this.values.splice(1,1)
+					}
+					return
+				} else if (leftDegree <= minKeys || rightDegree <= minKeys) {
+					if (leftDegree > rightDegree) {
+						let leftMostKey = leftSubTree.keys.splice(leftSubTree.keys.length - 1, 1)
+						let leftMostValue = leftSubTree.values.splice(leftSubTree.values.length - 1, 1)
+						let key = this.keys.splice(pos - 1, 1, leftMostKey[0])
+						middleSubTree.keys.splice(0, 0, key[0])
+						middleSubTree.values.splice(0, 0, ...leftMostValue)
+					} else {
+						let rightKey = rightSubTree.keys.splice(0, 1)
+						let rightValue = rightSubTree.values.splice(0, 1)
+						let key = this.keys.splice(pos, 1, rightKey[0])
+						middleSubTree.keys.splice(middleSubTree.keys.length, 0, key[0])
+						middleSubTree.values.splice(middleSubTree.values.length, 0, ...rightValue)
+					}
+				}
+			}
+			return
+		}
+
+		// Leaf Node & Internal node(self deletion and correction)
+		this.keys.splice(pos, 1)
+		if (this.isLeaf === false) {
+			let leftDegree = this.values[pos].keys.length
+			let rightDegree = this.values[pos + 1].keys.length
+
+			if (leftDegree - 1 >= minKeys || rightDegree - 1 >= minKeys) {
+				// Move child value to parent
+				if (leftDegree > rightDegree) {
+					let value = this.values[pos]
+					let removedVal = this.inorderPredecessor(value)
+					value.deleteVal(removedVal)
+					this.keys.splice(pos, 0, removedVal)
+				} else {
+					let value = this.values[pos + 1]
+					let removedVal = this.inorderSuccessor(value)
+					value.deleteVal(removedVal)
+					this.keys.splice(pos, this.keys.length, removedVal)
+				}
+			} else {
+				// Merge children
+				this.values[pos + 1].keys.forEach(key => {
+					this.values[pos].keys.push(key)
+				})
+				this.values[pos + 1].values.forEach(value => {
+					this.values[pos].values.push(value)
+				})
+				this.values.splice(pos + 1, 1)
+			}
+		}
+	}
+
 	// Output: mid, left, right
 	splitTree() {
 		let middleIndex = Math.floor((degree - 1) / 2)
@@ -76,6 +159,45 @@ class Node {
 		}
 	}
 
+
+	// Output: pos, isInKeys
+	searchNode(val) {
+		let i = 0
+		let j = this.keys.length - 1
+
+		while (i <= j) {
+			let mid = i + Math.floor((j - i) / 2)
+			let midKey = this.keys[mid]
+			if (midKey === val) {
+				return { pos: mid, isInKeys: true }
+			}
+
+			if (val < midKey) {
+				j = mid - 1
+			} else {
+				i = mid + 1
+			}
+		}
+
+		return { pos: i, isInKeys: false }
+	}
+
+	inorderPredecessor(node) {
+		if (node.isLeaf === true) {
+			return node.keys[node.keys.length - 1]
+		}
+
+		return this.inorderPredecessor(node.values[node.values.length - 1])
+	}
+
+
+	inorderSuccessor(node) {
+		if (node.isLeaf === true) {
+			return node.keys[0]
+		}
+
+		return this.inorderSuccessor(node.values[0])
+	}
 }
 
 class BTree {
@@ -108,6 +230,7 @@ class BTree {
 	}
 
 	printTree() {
+		printBTree(this.root)
 		this.printBtreeOnCanvas(this.root)
 	}
 
@@ -129,7 +252,7 @@ class BTree {
 			queue.length = 0
 
 			let totalSpace = q.length * (rectLength + 50)
-			let starting = 500 - totalSpace / 2
+			let starting = 750 - totalSpace / 2
 			for (let i = 0; i < q.length; i++) {
 				ctx.strokeRect(starting + ((rectLength + 50) * i), 50 + (level * 100), rectLength, 50)
 				//print Keys
@@ -166,6 +289,24 @@ class BTree {
 		}
 	}
 
+	deleteNode() {
+		let value = document.getElementById("nodeValue").value
+		value = parseInt(value)
+
+		if (Number.isNaN(value)) {
+			alert("Enter valid number")
+			document.getElementById("nodeValue").value = ""
+			return
+		}
+		// Delete
+		this.root.deleteVal(value)
+		if (this.root.keys.length === 0 ) {
+			this.root = this.root.values[0]
+		}
+		this.printTree()
+		document.getElementById("nodeValue").value = ""
+	}
+
 	changeDegree() {
 		let value = document.getElementById("degreeValue").value
 		value = parseInt(value)
@@ -199,28 +340,3 @@ function init() {
 
 init()
 
-
-// // Delete node
-// // 1. Find Node and parent
-// // 2. If Child node -> Delete node
-// //	2a. If min keys violation occurs, borrow from adjacent child node
-// //	2b. If Adjacent also has min keys, merge child with parent node
-// // 3. If Internal node
-// //	3a. Promote child node to parent key
-// //	3b. If min keys,  Merge child nodes
-// // 4. If Height decreases, rebalance tree
-//
-// deleteNode() {
-// 	let value = document.getElementById("nodeValue").value
-// 	value = parseInt(value)
-//
-//
-// 	if (Number.isNaN(value)) {
-// 		alert("Enter valid number")
-// 		document.getElementById("nodeValue").value = ""
-// 		return
-// 	}
-// 	// Delete
-// 	this.printTree()
-// 	document.getElementById("nodeValue").value = ""
-// }
