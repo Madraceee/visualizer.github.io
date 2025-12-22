@@ -7,89 +7,150 @@ ctx.strokeStyle = "white"
 var degree = 0
 
 class Node {
-	constructor() {
+	constructor(isLeaf = true) {
 		this.keys = new Array()
 		this.values = new Array()
-		this.isLeaf = true
+		this.isLeaf = isLeaf
 	}
 
 	insertVal(val) {
-		let insertValPos = -1
-		for (let i = 0; i < this.keys.length; i++) {
-			if (val < this.keys[i]) {
-				if (i < this.values.length) {
-					insertValPos = i
-					break
+		this.insertValNonFull(val)
+		if (this.keys.length === degree) {
+			const { mid, leftNode, rightNode } = this.splitTree()
+			const newRoot = new Node(false)
+			newRoot.keys.push(mid)
+			newRoot.values.push(leftNode, rightNode)
+			return newRoot
+		}
+		return this
+	}
+
+
+	insertValNonFull(val) {
+		let i = this.keys.length - 1
+
+		if (this.isLeaf) {
+			while (i >= 0 && val < this.keys[i]) {
+				i--
+			}
+			this.keys.splice(i + 1, 0, val)
+		} else {
+			while (i >= 0 && val < this.keys[i]) {
+				i--
+			}
+
+			const childIndex = i + 1
+			let child = this.values[childIndex]
+
+			if (child.keys.length === degree - 1) {
+				let { mid, leftNode, rightNode } = child.splitTree()
+				this.keys.splice(childIndex, 0, mid)
+				this.values.splice(childIndex, 1, leftNode, rightNode)
+				if (val < mid) {
+					child = leftNode
+				} else {
+					child = rightNode
 				}
 			}
+			child.insertValNonFull(val)
 		}
-		if (val > this.keys[this.keys.length - 1]) {
-			if (this.keys.length < this.values.length) {
-				insertValPos = this.values.length - 1
+	}
+
+	deleteVal(val) {
+		// Search Node
+		let { pos, isInKeys } = this.searchNode(val)
+		const minKeys = Math.ceil(degree / 2) - 1
+
+		if (isInKeys === false && this.isLeaf === false) {
+			this.values[pos].deleteVal(val)
+
+			// balancing tree
+			let leftSubTree = this.values[Math.max(0, pos - 1)]
+			let rightSubTree = this.values[Math.min(pos + 1, this.values.length - 1)]
+			let middleSubTree = this.values[pos]
+			let leftDegree = leftSubTree.keys.length
+			let rightDegree = rightSubTree.keys.length
+			let middleDegree = middleSubTree.keys.length
+
+			if (middleDegree < minKeys) {
+				if (leftDegree <= minKeys && rightDegree <= minKeys) {
+					// Pull a parent and combine with its value
+					if (pos !=  0 ) {
+						let key = this.keys.splice(pos-1,1)
+						middleSubTree.keys.splice(0,0,...leftSubTree.keys, key[0])
+						middleSubTree.values.splice(0,0,...leftSubTree.values)
+						this.values.splice(pos-1,1)
+					} else {
+						console.log("Left subtree addition", leftSubTree, rightSubTree)
+						let key = this.keys.splice(0,1)
+						leftSubTree.keys.splice(leftSubTree.keys.length,0,key[0], ...rightSubTree.keys)
+						leftSubTree.values.splice(leftSubTree.values.length,0,...rightSubTree.values)
+						this.values.splice(1,1)
+					}
+					return
+				} else if (leftDegree <= minKeys || rightDegree <= minKeys) {
+					if (leftDegree > rightDegree) {
+						let leftMostKey = leftSubTree.keys.splice(leftSubTree.keys.length - 1, 1)
+						let leftMostValue = leftSubTree.values.splice(leftSubTree.values.length - 1, 1)
+						let key = this.keys.splice(pos - 1, 1, leftMostKey[0])
+						middleSubTree.keys.splice(0, 0, key[0])
+						middleSubTree.values.splice(0, 0, ...leftMostValue)
+					} else {
+						let rightKey = rightSubTree.keys.splice(0, 1)
+						let rightValue = rightSubTree.values.splice(0, 1)
+						let key = this.keys.splice(pos, 1, rightKey[0])
+						middleSubTree.keys.splice(middleSubTree.keys.length, 0, key[0])
+						middleSubTree.values.splice(middleSubTree.values.length, 0, ...rightValue)
+					}
+				}
 			}
+			return
 		}
 
-		if (insertValPos !== -1) {
-			if (this.values[insertValPos].keys.length >= degree - 1) {
-				let { mid, leftNode, rightNode } = this.values[insertValPos].splitTree()
-				this.isLeaf = false
-				this.keys.splice(insertValPos, 0, mid)
-				this.values.splice(insertValPos, 1, leftNode, rightNode)
-				if (val < mid) {
-					leftNode = leftNode.insertVal(val)
+		// Leaf Node & Internal node(self deletion and correction)
+		this.keys.splice(pos, 1)
+		if (this.isLeaf === false) {
+			let leftDegree = this.values[pos].keys.length
+			let rightDegree = this.values[pos + 1].keys.length
+
+			if (leftDegree - 1 >= minKeys || rightDegree - 1 >= minKeys) {
+				// Move child value to parent
+				if (leftDegree > rightDegree) {
+					let value = this.values[pos]
+					let removedVal = this.inorderPredecessor(value)
+					value.deleteVal(removedVal)
+					this.keys.splice(pos, 0, removedVal)
 				} else {
-					rightNode = rightNode.insertVal(val)
+					let value = this.values[pos + 1]
+					let removedVal = this.inorderSuccessor(value)
+					value.deleteVal(removedVal)
+					this.keys.splice(pos, this.keys.length, removedVal)
 				}
 			} else {
-				this.values[insertValPos].insertVal(val)
+				// Merge children
+				this.values[pos + 1].keys.forEach(key => {
+					this.values[pos].keys.push(key)
+				})
+				this.values[pos + 1].values.forEach(value => {
+					this.values[pos].values.push(value)
+				})
+				this.values.splice(pos + 1, 1)
 			}
-		} else {
-			// val cannot be inserted into values
-			let insertPos = this.keys.length
-			for (let i = 0; i < this.keys.length; i++) {
-				if (val < this.keys[i]) {
-					insertPos = i
-					break
-				}
-			}
-			this.keys.splice(insertPos, 0, val)
 		}
-
-		// this split
-		if (this.keys.length > degree - 1) {
-			let { mid, leftNode, rightNode } = this.splitTree()
-			let node = new Node()
-			node.keys.push(mid)
-			node.values.push(leftNode, rightNode)
-			node.isLeaf = false
-			return node
-		}
-
-		return this
 	}
 
 	// Output: mid, left, right
 	splitTree() {
-		let middle = Math.floor((degree - 1) / 2)
-		let leftNode = new Node()
-		let rightNode = new Node()
+		let middleIndex = Math.floor((degree - 1) / 2)
+		let middleKey = this.keys[middleIndex]
+		let leftNode = new Node(this.isLeaf)
+		let rightNode = new Node(this.isLeaf)
 
-		this.keys.forEach((key, index) => {
-			if (index < middle) {
-				leftNode.insertVal(key)
-			} else if (index > middle) {
-				rightNode.insertVal(key)
-			}
-		})
-		this.values.forEach((value, index) => {
-			if (index <= middle) {
-				leftNode.values.push(value)
-			} else {
-				rightNode.values.push(value)
-			}
-		})
+		leftNode.keys = this.keys.splice(0, middleIndex)
+		rightNode.keys = this.keys.splice(1)
 
-		let middleKey = this.keys[middle]
+		leftNode.values = this.values.splice(0, middleIndex + 1)
+		rightNode.values = this.values.splice(0)
 
 		return {
 			mid: middleKey,
@@ -98,6 +159,45 @@ class Node {
 		}
 	}
 
+
+	// Output: pos, isInKeys
+	searchNode(val) {
+		let i = 0
+		let j = this.keys.length - 1
+
+		while (i <= j) {
+			let mid = i + Math.floor((j - i) / 2)
+			let midKey = this.keys[mid]
+			if (midKey === val) {
+				return { pos: mid, isInKeys: true }
+			}
+
+			if (val < midKey) {
+				j = mid - 1
+			} else {
+				i = mid + 1
+			}
+		}
+
+		return { pos: i, isInKeys: false }
+	}
+
+	inorderPredecessor(node) {
+		if (node.isLeaf === true) {
+			return node.keys[node.keys.length - 1]
+		}
+
+		return this.inorderPredecessor(node.values[node.values.length - 1])
+	}
+
+
+	inorderSuccessor(node) {
+		if (node.isLeaf === true) {
+			return node.keys[0]
+		}
+
+		return this.inorderSuccessor(node.values[0])
+	}
 }
 
 class BTree {
@@ -109,8 +209,8 @@ class BTree {
 		let value = document.getElementById("nodeValue").value
 		value = parseInt(value)
 
-		if (value < 0 || value > 999) {
-			alert("Enter values between 0 and 999")
+		if (value < -999 || value > 999) {
+			alert("Enter values between -999 and 999")
 			return
 		}
 
@@ -130,6 +230,7 @@ class BTree {
 	}
 
 	printTree() {
+		printBTree(this.root)
 		this.printBtreeOnCanvas(this.root)
 	}
 
@@ -151,7 +252,7 @@ class BTree {
 			queue.length = 0
 
 			let totalSpace = q.length * (rectLength + 50)
-			let starting = 500 - totalSpace / 2
+			let starting = 750 - totalSpace / 2
 			for (let i = 0; i < q.length; i++) {
 				ctx.strokeRect(starting + ((rectLength + 50) * i), 50 + (level * 100), rectLength, 50)
 				//print Keys
@@ -188,6 +289,24 @@ class BTree {
 		}
 	}
 
+	deleteNode() {
+		let value = document.getElementById("nodeValue").value
+		value = parseInt(value)
+
+		if (Number.isNaN(value)) {
+			alert("Enter valid number")
+			document.getElementById("nodeValue").value = ""
+			return
+		}
+		// Delete
+		this.root.deleteVal(value)
+		if (this.root.keys.length === 0 ) {
+			this.root = this.root.values[0]
+		}
+		this.printTree()
+		document.getElementById("nodeValue").value = ""
+	}
+
 	changeDegree() {
 		let value = document.getElementById("degreeValue").value
 		value = parseInt(value)
@@ -211,11 +330,6 @@ class BTree {
 
 function printBTree(root) {
 	console.log(root)
-	if (root.values.length > 0) {
-		root.values.forEach(value => {
-			printBTree(value)
-		})
-	}
 }
 
 var bTree = new BTree()
@@ -225,3 +339,4 @@ function init() {
 }
 
 init()
+
