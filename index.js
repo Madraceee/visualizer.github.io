@@ -81,7 +81,6 @@ class Node {
 						middleSubTree.values.splice(0,0,...leftSubTree.values)
 						this.values.splice(pos-1,1)
 					} else {
-						console.log("Left subtree addition", leftSubTree, rightSubTree)
 						let key = this.keys.splice(0,1)
 						leftSubTree.keys.splice(leftSubTree.keys.length,0,key[0], ...rightSubTree.keys)
 						leftSubTree.values.splice(leftSubTree.values.length,0,...rightSubTree.values)
@@ -108,7 +107,9 @@ class Node {
 		}
 
 		// Leaf Node & Internal node(self deletion and correction)
-		this.keys.splice(pos, 1)
+		if (this.keys[pos] === val && isInKeys === true){
+			this.keys.splice(pos, 1)
+		}
 		if (this.isLeaf === false) {
 			let leftDegree = this.values[pos].keys.length
 			let rightDegree = this.values[pos + 1].keys.length
@@ -301,7 +302,9 @@ class BTree {
 		// Delete
 		this.root.deleteVal(value)
 		if (this.root.keys.length === 0 ) {
-			this.root = this.root.values[0]
+			if (this.root.values.length != 0){
+				this.root = this.root.values[0]
+			}
 		}
 		this.printTree()
 		document.getElementById("nodeValue").value = ""
